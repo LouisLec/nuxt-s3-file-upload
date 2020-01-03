@@ -5,12 +5,19 @@
     </v-file-input>
     <v-btn @click="logger()">check buckets</v-btn>
     <v-btn @click="upload()">upload</v-btn>
-    <v-btn @click="fetch()">fetch</v-btn>
+    <v-btn @click="uploadFile()">alt upload</v-btn>
   <v-container>
     {{returnedData}}
-    {{returnedURL}}
   </v-container>
-    <img :scr="returnedURL"/>
+    <v-img scr=""/>
+    <v-img
+      :src="returnedData"
+      lazy-src="https://picsum.photos/id/11/10/6"
+      aspect-ratio="1"
+      class="grey lighten-2"
+      max-width="500"
+      max-height="300"
+    ></v-img>
   </v-container>
 </template>
 
@@ -19,8 +26,7 @@
     data () {
       return {
       myFile: null,
-      returnedData: null,
-      returnedURL: null,
+      returnedData: '',
       }
     },
     methods: {
@@ -30,29 +36,28 @@
         });
       },
       upload () {
-        const res = this.$s3.getSignedUrl('putObject', {
-          Body: this.myFile,
-          Key: this.myFile.name,
-          Bucket: "sopolyglot-dev"
-        }, (err, data) => {
-          if (err) {
-              throw err;
-          }
-          console.log(data);
-          this.returnedData = data
-        })
+
+        this.returnedData = this.$s3.uploadFile(this.myFile)
+
+
+
+        // this.$s3.upload({
+        //   Body: this.myFile,
+        //   Key: this.myFile.name,
+        //   Bucket: "sopolyglot-dev",
+        //   ACL: 'public-read'
+        // }, (err, data) => {
+        //   if (err) {
+        //       throw err;
+        //   }
+        //   console.log(data);
+        //   this.returnedData = data.Location
+        // })
+        
       },
-      fetch () {
-        this.$s3.getSignedUrl('getObject', {
-          Key: "FOHDL5PYLAI2PG9IX9VA",
-          Bucket: "sopolyglot-dev"
-        }, (err, data) => {
-          if (err) {
-              throw err;
-          }
-          console.log(data);
-          this.returnedURL = data;
-        });
+      uploadFile () {
+        console.log(this.$s3.uploadFile(this.myFile));
+        this.returnedData = this.$s3.uploadFile(this.myFile)
       },
       onFileChange() {
         console.log(this.myFile);
